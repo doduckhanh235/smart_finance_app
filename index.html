@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-title" content="FintechX">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#4338ca">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>FintechX - Quản lý tài chính thông minh</title>
     <!-- Tailwind CSS cho Giao diện -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -35,6 +35,18 @@
             border-radius: 10px;
         }
         /* Hiệu ứng chuyển động mượt mà cho Bottom Sheet */
+        
+        /* Prevent iOS zoom on input focus */
+        input, select, textarea {
+            font-size: 16px !important;
+        }
+        /* Full screen on mobile */
+        @media (max-width: 640px) {
+            body {
+                background-color: white !important;
+            }
+        }
+
         .bottom-sheet {
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -43,10 +55,10 @@
         }
     </style>
 </head>
-<body class="flex justify-center items-center min-h-screen p-0 sm:p-4 md:p-8">
+<body class="flex justify-center items-center min-h-screen p-0 bg-slate-100">
 
     <!-- Thiết bị giả lập để mang lại trải nghiệm app di động tốt nhất trên cả máy tính và điện thoại -->
-    <div class="w-full max-w-md h-[840px] sm:h-[800px] bg-white sm:rounded-[40px] shadow-2xl overflow-hidden flex flex-col relative border border-slate-100">
+    <div class="w-full max-w-md h-screen sm:h-[800px] bg-white sm:rounded-[40px] shadow-2xl overflow-hidden flex flex-col relative border-0 sm:border sm:border-slate-100">
         
         <!-- Status Bar giả lập tạo cảm giác thật -->
         <div class="bg-slate-900 text-white px-6 pt-3 pb-2 flex justify-between items-center text-xs font-semibold shrink-0 z-10">
