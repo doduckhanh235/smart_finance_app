@@ -84,7 +84,7 @@
         
 
         <!-- Header chính của ứng dụng -->
-        <header class="bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-800 text-white px-6 pt-6 pb-8 rounded-b-[32px] shadow-lg shrink-0">
+        <header class="bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-800 text-white px-4 pb-6 rounded-b-[28px] shadow-lg shrink-0 overflow-hidden" style="padding-top:calc(40px + env(safe-area-inset-top, 0px));">
             <div class="flex justify-between items-center mb-4">
                 <!-- Phần thông tin cá nhân hỗ trợ tương tác chỉnh sửa -->
                 <button onclick="openProfileModal()" class="flex items-center space-x-3 text-left focus:outline-none group active:scale-95 transition-all">
@@ -138,7 +138,7 @@
         </div>
 
         <!-- Khu vực hiển thị nội dung theo Tab -->
-        <main class="flex-1 overflow-y-auto px-4 py-4 bg-slate-50 custom-scroll pb-24" style="overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;">
+        <main class="flex-1 overflow-y-auto px-4 py-4 bg-slate-50 custom-scroll" style="overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:calc(72px + env(safe-area-inset-bottom, 0px));">
             
             <!-- Tab 1: Dashboard (Mặc định) -->
             <section id="tab-dashboard" class="space-y-6">
@@ -342,7 +342,7 @@
         </main>
 
         <!-- Thanh Navigation Bar ở đáy màn hình -->
-        <nav class="absolute bottom-0 left-0 right-0 bg-white/85 backdrop-blur-md border-t border-slate-100 px-4 py-2 flex justify-between items-center z-20 shadow-lg">
+        <nav class="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-100 px-4 pt-2 flex justify-between items-center z-20 shadow-lg" style="padding-bottom:calc(8px + env(safe-area-inset-bottom, 0px));">
             
             <!-- Dashboard Tab Button -->
             <button onclick="switchTab('dashboard')" id="nav-dashboard" class="flex flex-col items-center space-y-1 py-1 w-14 text-indigo-600">
