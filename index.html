@@ -367,12 +367,12 @@
         <div id="backdrop-sheet" onclick="closeAllSheets()" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 z-30"></div>
         
         <!-- Bottom Sheet để Nhập Giao Dịch -->
-        <div id="add-transaction-sheet" class="bottom-sheet hidden-sheet absolute bottom-0 left-0 right-0 bg-white rounded-t-[32px] shadow-2xl z-40 px-6 pt-5 pb-8 flex flex-col border-t border-slate-100 max-h-[85%] overflow-y-auto">
+        <div id="add-transaction-sheet" data-edit-id="" class="bottom-sheet hidden-sheet absolute bottom-0 left-0 right-0 bg-white rounded-t-[32px] shadow-2xl z-40 px-6 pt-5 pb-8 flex flex-col border-t border-slate-100 max-h-[85%] overflow-y-auto">
             
             <div class="w-12 h-1 bg-slate-200 rounded-full mx-auto mb-4 cursor-pointer" onclick="closeAddTransactionSheet()"></div>
             
             <div class="flex justify-between items-center mb-5">
-                <h3 class="text-base font-bold text-slate-800">Thêm Giao Dịch</h3>
+                <h3 id="sheet-title" class="text-base font-bold text-slate-800">Thêm Giao Dịch</h3>
                 <!-- Nút chuyển đổi Loại giao dịch -->
                 <div class="flex bg-slate-100 p-1 rounded-lg">
                     <button onclick="changeTransactionType('expense')" id="btn-type-expense" class="text-xs font-bold px-3 py-1.5 rounded-md bg-white text-rose-600 shadow-sm transition-all">Chi Tiêu</button>
@@ -424,7 +424,7 @@
             </div>
 
             <!-- Nút Hoàn Tất -->
-            <button onclick="saveNewTransaction()" class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold py-3.5 rounded-xl shadow-lg hover:opacity-95 transition-all text-xs tracking-wider flex items-center justify-center space-x-2">
+            <button id="save-tx-btn" onclick="saveNewTransaction()" class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold py-3.5 rounded-xl shadow-lg hover:opacity-95 transition-all text-xs tracking-wider flex items-center justify-center space-x-2">
                 <i data-lucide="check" class="w-4 h-4"></i>
                 <span>HOÀN THÀNH GHI CHÉP</span>
             </button>
@@ -1091,8 +1091,13 @@
 
         // --- NHẬP GIAO DỊCH SHEET ---
         function openAddTransactionSheet() {
+            const sheet = document.getElementById('add-transaction-sheet');
+            sheet.dataset.editId = '';
+            document.getElementById('sheet-title').innerText = 'Thêm Giao Dịch';
+            const btn = document.getElementById('save-tx-btn');
+            if (btn) btn.onclick = saveNewTransaction;
             document.getElementById('backdrop-sheet').classList.remove('opacity-0', 'pointer-events-none');
-            document.getElementById('add-transaction-sheet').classList.remove('hidden-sheet');
+            sheet.classList.remove('hidden-sheet');
             document.getElementById('amount-input').value = '';
             document.getElementById('note-input').value = '';
             
@@ -1105,6 +1110,95 @@
             selectedCategory = '';
             changeTransactionType('expense');
             populateWalletSelector();
+        }
+
+        function editTransaction(id) {
+            const tx = transactions.find(t => t.id === id);
+            if (!tx) return;
+
+            // Open the sheet in edit mode
+            const sheet = document.getElementById('add-transaction-sheet');
+            sheet.dataset.editId = id;
+            document.getElementById('sheet-title').innerText = 'Chỉnh Sửa Giao Dịch';
+            const btn = document.getElementById('save-tx-btn');
+            if (btn) btn.onclick = updateTransaction;
+
+            document.getElementById('backdrop-sheet').classList.remove('opacity-0', 'pointer-events-none');
+            sheet.classList.remove('hidden-sheet');
+
+            // Populate fields
+            document.getElementById('amount-input').value = tx.amount.toLocaleString('vi-VN');
+            document.getElementById('note-input').value = tx.note || '';
+            document.getElementById('date-input').value = tx.date;
+
+            populateWalletSelector();
+            document.getElementById('wallet-select-input').value = tx.walletId;
+
+            selectedCategory = tx.category;
+            changeTransactionType(tx.type);
+
+            // Highlight selected category using selectCategory
+            setTimeout(() => {
+                selectCategory(tx.category);
+            }, 150);
+        }
+
+        function updateTransaction() {
+            const sheet = document.getElementById('add-transaction-sheet');
+            const editId = sheet.dataset.editId;
+            if (!editId) return;
+
+            const amountInput = document.getElementById('amount-input').value;
+            const noteInput = document.getElementById('note-input').value;
+            const dateInput = document.getElementById('date-input').value;
+            const walletId = document.getElementById('wallet-select-input').value;
+
+            if (!amountInput) { showToast("❌ Vui lòng nhập số tiền!"); return; }
+            if (!selectedCategory) { showToast("❌ Vui lòng chọn danh mục!"); return; }
+            if (!dateInput) { showToast("❌ Vui lòng chọn ngày!"); return; }
+            if (!walletId) { showToast("❌ Vui lòng chọn ví!"); return; }
+
+            const newAmount = parseInt(amountInput.replace(/\./g, ''));
+            const txIndex = transactions.findIndex(t => t.id == editId);
+            if (txIndex === -1) return;
+
+            const oldTx = transactions[txIndex];
+
+            // Reverse old wallet effect
+            const oldWalletIdx = wallets.findIndex(w => w.id === oldTx.walletId);
+            if (oldWalletIdx !== -1) {
+                if (oldTx.type === 'expense') wallets[oldWalletIdx].balance += oldTx.amount;
+                else wallets[oldWalletIdx].balance -= oldTx.amount;
+            }
+
+            // Apply new wallet effect
+            const newWalletIdx = wallets.findIndex(w => w.id === walletId);
+            if (newWalletIdx !== -1) {
+                if (transactionType === 'expense') wallets[newWalletIdx].balance -= newAmount;
+                else wallets[newWalletIdx].balance += newAmount;
+            }
+
+            // Update transaction
+            transactions[txIndex] = {
+                ...oldTx,
+                type: transactionType,
+                amount: newAmount,
+                category: selectedCategory,
+                note: noteInput || getCategoryName(selectedCategory, transactionType),
+                date: dateInput,
+                walletId: walletId
+            };
+
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            localStorage.setItem('wallets', JSON.stringify(wallets));
+
+            closeAddTransactionSheet();
+            renderTransactions();
+            renderWallets();
+            updateFinancialStats();
+            renderBudgetTab();
+            showToast("✅ Đã cập nhật giao dịch!");
+            if (typeof lucide !== "undefined") { lucide.createIcons(); }
         }
 
         function closeAddTransactionSheet() {
@@ -1290,7 +1384,8 @@
                 const walletName = wallets.find(w => w.id === tx.walletId)?.name || 'Ví đã xóa';
 
                 const item = document.createElement('div');
-                item.className = "bg-white p-3.5 rounded-xl border border-slate-100 flex justify-between items-center shadow-sm hover:border-slate-200 transition-all";
+                item.className = "bg-white p-3.5 rounded-xl border border-slate-100 flex justify-between items-center shadow-sm hover:border-indigo-200 active:bg-indigo-50 transition-all cursor-pointer";
+                item.onclick = (e) => { if (!e.target.closest('button')) editTransaction(tx.id); };
                 item.innerHTML = `
                     <div class="flex items-center space-x-3">
                         <div class="w-9 h-9 rounded-full ${catColor} flex items-center justify-center">
