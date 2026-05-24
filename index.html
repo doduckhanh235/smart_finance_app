@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-title" content="FintechX">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#4338ca">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>FintechX - Quản lý tài chính thông minh</title>
     <!-- Tailwind CSS cho Giao diện -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -39,6 +39,27 @@
         /* Prevent iOS zoom on input focus */
         input, select, textarea {
             font-size: 16px !important;
+            box-sizing: border-box !important;
+            max-width: 100% !important;
+        }
+        /* Date input iOS fix */
+        input[type="date"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100% !important;
+        }
+        /* GLOBAL: never allow horizontal scroll anywhere */
+        html, body {
+            overflow-x: hidden !important;
+            max-width: 100vw !important;
+        }
+        /* Lock sheet - no horizontal scroll ever */
+        #add-transaction-sheet, #add-transaction-sheet * {
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        #add-transaction-sheet {
+            touch-action: pan-y;
         }
         /* Full screen on mobile */
         @media (max-width: 640px) {
@@ -55,10 +76,10 @@
         }
     </style>
 </head>
-<body class="flex justify-center items-center min-h-screen p-0 bg-slate-100">
+<body class="bg-white" style="margin:0;padding:0;width:100vw;height:100vh;overflow:hidden;">
 
     <!-- Thiết bị giả lập để mang lại trải nghiệm app di động tốt nhất trên cả máy tính và điện thoại -->
-    <div class="w-full max-w-md h-screen sm:h-[800px] bg-white sm:rounded-[40px] shadow-2xl overflow-hidden flex flex-col relative border-0 sm:border sm:border-slate-100">
+    <div style="width:100vw;height:100vh;overflow:hidden;display:flex;flex-direction:column;position:relative;background:white;">
         
         <!-- Status Bar giả lập tạo cảm giác thật -->
         <div class="bg-slate-900 text-white px-6 pt-3 pb-2 flex justify-between items-center text-xs font-semibold shrink-0 z-10">
@@ -371,11 +392,11 @@
             
             <div class="w-12 h-1 bg-slate-200 rounded-full mx-auto mb-4 cursor-pointer" onclick="closeAddTransactionSheet()"></div>
             
-            <div class="flex justify-between items-center mb-5">
+            <div class="flex justify-between items-center mb-5 gap-2">
                 <h3 id="sheet-title" class="text-base font-bold text-slate-800">Thêm Giao Dịch</h3>
                 <!-- Nút chuyển đổi Loại giao dịch -->
                 <div class="flex bg-slate-100 p-1 rounded-lg">
-                    <button onclick="changeTransactionType('expense')" id="btn-type-expense" class="text-xs font-bold px-3 py-1.5 rounded-md bg-white text-rose-600 shadow-sm transition-all">Chi Tiêu</button>
+                    <button onclick="changeTransactionType('expense')" id="btn-type-expense" class="text-[10px] font-bold px-2 py-1.5 rounded-md bg-white text-rose-600 shadow-sm transition-all">Chi Tiêu</button>
                     <button onclick="changeTransactionType('income')" id="btn-type-income" class="text-xs font-semibold px-3 py-1.5 rounded-md text-slate-500 hover:text-slate-800 transition-all">Thu Nhập</button>
                 </div>
             </div>
@@ -384,15 +405,15 @@
             <div class="bg-slate-50 p-4 rounded-2xl mb-4 border border-slate-100 text-center">
                 <label class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Số tiền (đ)</label>
                 <div class="flex items-baseline justify-center space-x-1 mt-1">
-                    <input type="text" id="amount-input" class="bg-transparent text-center text-3xl font-bold text-slate-800 outline-none w-full max-w-xs" placeholder="0" oninput="formatAmountInput(this)">
+                    <input type="text" id="amount-input" inputmode="numeric" class="bg-transparent text-center text-3xl font-bold text-slate-800 outline-none w-full max-w-xs" placeholder="0" oninput="formatAmountInput(this)">
                     <span class="text-lg font-bold text-slate-400">đ</span>
                 </div>
                 <!-- Gợi ý nhanh số tiền -->
-                <div class="flex justify-center gap-1.5 mt-3">
-                    <button onclick="quickSetAmount(50000)" class="text-[10px] font-semibold bg-white border border-slate-200 px-2.5 py-1 rounded-full hover:bg-slate-100 text-slate-600">+50K</button>
-                    <button onclick="quickSetAmount(100000)" class="text-[10px] font-semibold bg-white border border-slate-200 px-2.5 py-1 rounded-full hover:bg-slate-100 text-slate-600">+100K</button>
-                    <button onclick="quickSetAmount(200000)" class="text-[10px] font-semibold bg-white border border-slate-200 px-2.5 py-1 rounded-full hover:bg-slate-100 text-slate-600">+200K</button>
-                    <button onclick="quickSetAmount(500000)" class="text-[10px] font-semibold bg-white border border-slate-200 px-2.5 py-1 rounded-full hover:bg-slate-100 text-slate-600">+500K</button>
+                <div class="grid grid-cols-4 gap-1.5 mt-3 w-full">
+                    <button onclick="quickSetAmount(50000)" class="text-[10px] font-semibold bg-white border border-slate-200 py-1.5 rounded-full hover:bg-slate-100 text-slate-600 w-full">+50K</button>
+                    <button onclick="quickSetAmount(100000)" class="text-[10px] font-semibold bg-white border border-slate-200 py-1.5 rounded-full hover:bg-slate-100 text-slate-600 w-full">+100K</button>
+                    <button onclick="quickSetAmount(200000)" class="text-[10px] font-semibold bg-white border border-slate-200 py-1.5 rounded-full hover:bg-slate-100 text-slate-600 w-full">+200K</button>
+                    <button onclick="quickSetAmount(500000)" class="text-[10px] font-semibold bg-white border border-slate-200 py-1.5 rounded-full hover:bg-slate-100 text-slate-600 w-full">+500K</button>
                 </div>
             </div>
 
@@ -413,14 +434,14 @@
             <!-- Danh mục biểu tượng -->
             <div class="mb-4">
                 <label class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block mb-3">Chọn danh mục chi tiêu</label>
-                <div id="categories-grid" class="grid grid-cols-4 gap-3">
+                <div id="categories-grid" class="grid grid-cols-4 gap-2 w-full">
                     <!-- Dynamic load -->
                 </div>
             </div>
 
             <!-- Ghi chú nhanh -->
             <div class="mb-5">
-                <input type="text" id="note-input" class="w-full text-xs bg-slate-50 border border-slate-100 rounded-xl p-3 text-slate-700 placeholder-slate-400 outline-none focus:border-indigo-500 transition-all" placeholder="Ghi chú (Ví dụ: Ăn bún chả, Mua xăng...)">
+                <input type="text" id="note-input" inputmode="text" class="w-full text-xs bg-slate-50 border border-slate-100 rounded-xl p-3 text-slate-700 placeholder-slate-400 outline-none focus:border-indigo-500 transition-all" placeholder="Ghi chú (Ví dụ: Ăn bún chả, Mua xăng...)">
             </div>
 
             <!-- Nút Hoàn Tất -->
@@ -428,6 +449,7 @@
                 <i data-lucide="check" class="w-4 h-4"></i>
                 <span>HOÀN THÀNH GHI CHÉP</span>
             </button>
+            </div><!-- end scroll wrapper -->
         </div>
 
         <!-- Bottom Sheet chỉnh sửa HẠN MỨC CHI TIÊU -->
